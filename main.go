@@ -14,9 +14,11 @@ func main() {
 	fmt.Printf("Project: %s\n\n", cfg.ProjectName)
 	
 	for _, j := range cfg.Jobs {
-		fmt.Println(j.Type)
-		fmt.Println(j.Outputfile)
-		fmt.Println(j.InputFiles)
-		fmt.Printf("Options: %s\n\n", j.Options)
+		if err := j.Run(); err != nil {
+			fmt.Printf("Could not compile file: %s\n", j.Outputfile)
+			fmt.Println(err)
+		} else {
+			fmt.Printf("Successfuly compiled: %s\n", j.Outputfile)
+		}
 	}
 }
