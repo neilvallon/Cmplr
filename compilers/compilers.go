@@ -16,6 +16,8 @@ func GetCompiler(file string) (c Compiler, err error) {
 			c = &JsFile{ Name: file }
 		case ".less":
 			c = &LessFile{ Name: file }
+		case ".jade":
+			c = &JadeFile{ Name: file }
 		default:
 			err = fmt.Errorf("Unsuported file type '%s'", ext)
 	}
