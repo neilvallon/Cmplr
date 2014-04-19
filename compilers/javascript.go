@@ -2,6 +2,7 @@ package compilers
 
 import (
 	"os/exec"
+	"fmt"
 )
 
 type JsFile struct {
@@ -10,9 +11,11 @@ type JsFile struct {
 }
 
 func (f *JsFile) Compile() (err error) {
-	out, err := exec.Command("uglifyjs", f.Name).Output()
+	out, err := exec.Command("uglifyjs", f.Name).CombinedOutput()
 	if err == nil {
 		f.Data = out
+	} else {
+		err = fmt.Errorf("%s\n%s", err, out)
 	}
 
 	return

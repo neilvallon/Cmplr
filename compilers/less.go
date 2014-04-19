@@ -2,6 +2,7 @@ package compilers
 
 import (
 	"os/exec"
+	"fmt"
 )
 
 type LessFile struct {
@@ -17,9 +18,11 @@ func (f *LessFile) Compile() (err error) {
 		comp = "--clean-css"
 	}
 
-	out, err := exec.Command("lessc", f.Name, comp).Output()
+	out, err := exec.Command("lessc", f.Name, comp).CombinedOutput()
 	if err == nil {
 		f.Data = out
+	} else {
+		err = fmt.Errorf("%s\n%s", err, out)
 	}
 
 	return
