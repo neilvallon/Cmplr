@@ -3,6 +3,7 @@ package compilers
 import (
 	"os/exec"
 	"io/ioutil"
+	"path/filepath"
 	"fmt"
 )
 
@@ -12,6 +13,12 @@ type JadeFile struct {
 }
 
 func (f *JadeFile) Compile() (err error) {
+	// Get file directory
+	dir, err := filepath.Abs(f.Name)
+	if err != nil {
+		return
+	}
+
 	// Open jade file
 	file, err := ioutil.ReadFile(f.Name)
 	if err != nil {
@@ -19,7 +26,7 @@ func (f *JadeFile) Compile() (err error) {
 	}
 
 	// Run jade and wait on stdin
-	cmd := exec.Command("jade", "--pretty")
+	cmd := exec.Command("jade", "--pretty", "--path", dir)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return
