@@ -12,18 +12,22 @@ type Compiler interface {
 }
 
 type CompilerSet []Compiler
-func (cs CompilerSet) Compile() (out []byte, err error) {
-	var bb [][]byte
+func (cs CompilerSet) Compile() (err error) {
 	for _, c := range cs {
 		if err = c.Compile(); err != nil {
 			return
 		}
+	}
+	return
+}
+
+func (cs CompilerSet) Output() []byte {
+	var bb [][]byte
+	for _, c := range cs {
 		bb = append(bb, c.GetData())
 	}
 
-	out = bytes.Join(bb, []byte("\n"))
-
-	return
+	return bytes.Join(bb, []byte("\n"))
 }
 
 func GetCompiler(file string) (c Compiler, err error) {

@@ -22,10 +22,10 @@ func (j *Job) Run() (err error) {
 		return
 	}
 
-	out, err := cl.Compile()
-	if err != nil {
+	if err = cl.Compile(); err != nil {
 		return
 	}
+	out := cl.Output()
 
 	fo, err := os.Create(j.Outputfile)
 	if err != nil {
