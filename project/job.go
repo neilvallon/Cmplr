@@ -17,28 +17,15 @@ type Job struct {
 }
 
 func (j *Job) Run() (err error) {
-	if err = os.MkdirAll(path.Dir(j.Outputfile), 0777); err != nil {
+	cl, err := j.makeCompilers()
+	if err != nil {
 		return
 	}
 
-	var cl []compilers.Compiler
-	for _, f := range j.InputFiles {
-		c, err := compilers.GetCompiler(f)
-		if err != nil {
-			return err
-		}
-		cl = append(cl, c)
+	out, err := cl.Compile()
+	if err != nil {
+		return
 	}
-
-	var bl [][]byte
-	for _, c := range cl {
-		if err = c.Compile(); err == nil {
-			bl = append(bl, c.GetData())
-		} else {
-			return
-		}
-	}
-
 
 	fo, err := os.Create(j.Outputfile)
 	if err != nil {
@@ -46,12 +33,23 @@ func (j *Job) Run() (err error) {
 	}
 	defer fo.Close()
 
-	for _, b := range bl {
-		_, err = fo.Write(b)
-		if err != nil {
-			return
-		}
+	_, err = fo.Write(out)
+
+	return
+}
+
+func (j *Job) makeCompilers() (cl compilers.CompilerSet, err error) {
+	if err = os.MkdirAll(path.Dir(j.Outputfile), 0777); err != nil {
+		return
 	}
 
+	for _, f := range j.InputFiles {
+		c, e := compilers.GetCompiler(f)
+		if e != nil {
+			err = e
+			break
+		}
+		cl = append(cl, c)
+	}
 	return
 }

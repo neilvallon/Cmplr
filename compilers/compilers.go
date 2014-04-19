@@ -3,11 +3,27 @@ package compilers
 import (
 	"path/filepath"
 	"fmt"
+	"bytes"
 )
 
 type Compiler interface {
 	Compile() error
 	GetData() []byte
+}
+
+type CompilerSet []Compiler
+func (cs CompilerSet) Compile() (out []byte, err error) {
+	var bb [][]byte
+	for _, c := range cs {
+		if err = c.Compile(); err != nil {
+			return
+		}
+		bb = append(bb, c.GetData())
+	}
+
+	out = bytes.Join(bb, []byte("\n"))
+
+	return
 }
 
 func GetCompiler(file string) (c Compiler, err error) {
