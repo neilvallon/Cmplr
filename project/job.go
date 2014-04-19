@@ -21,27 +21,37 @@ func (j *Job) Run() (err error) {
 		return
 	}
 
+	var cl []compilers.Compiler
+	for _, f := range j.InputFiles {
+		c, err := compilers.GetCompiler(f)
+		if err != nil {
+			return err
+		}
+		cl = append(cl, c)
+	}
+
+	var bl [][]byte
+	for _, c := range cl {
+		if err = c.Compile(); err == nil {
+			bl = append(bl, c.GetData())
+		} else {
+			return
+		}
+	}
+
+
 	fo, err := os.Create(j.Outputfile)
 	if err != nil {
 		return
 	}
 	defer fo.Close()
 
-	for _, f := range j.InputFiles {
-		c := getCompiler(f)
-		if err = c.Compile(); err == nil {
-			_, err = fo.Write(c.GetData())
+	for _, b := range bl {
+		_, err = fo.Write(b)
+		if err != nil {
+			return
 		}
 	}
 
 	return
-}
-
-func getCompiler(f string) compilers.Compiler {
-	c, err := compilers.GetCompiler(f)
-	if err != nil {
-		panic(err)
-	}
-
-	return c
 }
