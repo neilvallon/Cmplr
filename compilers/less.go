@@ -12,7 +12,12 @@ type LessFile struct {
 	Compress   bool
 }
 
-func (f *LessFile) Compile() (err error) {
+func (f *LessFile) Compile(ch chan error) {
+	var err error
+	defer func() {
+		ch <- err
+	}()
+
 	var comp string
 	if f.Compress {
 		comp = "--clean-css"

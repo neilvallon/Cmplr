@@ -7,17 +7,25 @@ import (
 )
 
 type Compiler interface {
-	Compile() error
+	Compile(chan error)
 	GetData() []byte
 }
 
 type CompilerSet []Compiler
 func (cs CompilerSet) Compile() (err error) {
+	l := len(cs)
+	errchan := make(chan error, l)
+
 	for _, c := range cs {
-		if err = c.Compile(); err != nil {
+		go c.Compile(errchan)
+	}
+
+	for i := 0; i < l; i++ {
+		if err = <-errchan; err != nil {
 			return
 		}
 	}
+
 	return
 }
 

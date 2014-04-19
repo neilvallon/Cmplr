@@ -10,7 +10,12 @@ type JsFile struct {
 	Data  []byte
 }
 
-func (f *JsFile) Compile() (err error) {
+func (f *JsFile) Compile(ch chan error) {
+	var err error
+	defer func() {
+		ch <- err
+	}()
+
 	out, err := exec.Command("uglifyjs", f.Name).CombinedOutput()
 	if err == nil {
 		f.Data = out

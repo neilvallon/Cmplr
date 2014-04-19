@@ -12,7 +12,12 @@ type JadeFile struct {
 	Data  []byte
 }
 
-func (f *JadeFile) Compile() (err error) {
+func (f *JadeFile) Compile(ch chan error) {
+	var err error
+	defer func() {
+		ch <- err
+	}()
+
 	// Get file directory
 	dir, err := filepath.Abs(f.Name)
 	if err != nil {
