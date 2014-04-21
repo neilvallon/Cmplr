@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/neilvallon/cmplr/project"
 	"fmt"
+	"flag"
+	"net/http"
 )
 
 func main() {
@@ -18,5 +20,12 @@ func main() {
 	}
 
 	fmt.Println("Done.")
+
+	// File server
+	serve := flag.Bool("s", false, "Start dev file server")
+	flag.Parse()
+	if *serve {
+		http.ListenAndServe(":8080", http.FileServer(http.Dir("./")))
+	}
 }
 
