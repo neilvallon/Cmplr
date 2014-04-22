@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"fmt"
 	"strings"
+	"log"
 )
 
 
@@ -39,13 +40,44 @@ func (j *Job) Run() {
 		return
 	}
 
+	err = j.save(out)
+
+	return
+}
+
+func (j *Job) Watch() {
+	if err := os.MkdirAll(path.Dir(j.Outputfile), 0777); err != nil {
+		log.Println(err)
+		return
+	}
+
+	c := compiler.New(j.InputFiles)
+
+	out, err := c.Compile();
+	if err != nil {
+		panic(err) // invalid cache if initial compile fails
+	}
+
+	if err := j.save(out); err != nil {
+		log.Println(err)
+	}
+
+	update := c.Watch()
+	for out := range update {
+		if err := j.save(out); err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func (j *Job) save(b []byte) (err error) {
 	fo, err := os.Create(j.Outputfile)
 	if err != nil {
 		return
 	}
 	defer fo.Close()
 
-	_, err = fo.Write(out)
+	_, err = fo.Write(b)
 
 	return
 }
