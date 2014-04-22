@@ -1,4 +1,4 @@
-package compilers
+package compiler
 
 import (
 	"os/exec"
@@ -8,7 +8,7 @@ import (
 )
 
 
-func JadeCompile(f string) (b []byte, err error) {
+func JadeCompiler(f string) (b []byte, err error) {
 	// Get file directory
 	dir, err := filepath.Abs(f)
 	if err != nil {

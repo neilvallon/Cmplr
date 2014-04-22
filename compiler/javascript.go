@@ -1,4 +1,4 @@
-package compilers
+package compiler
 
 import (
 	"os/exec"
@@ -6,7 +6,7 @@ import (
 )
 
 
-func JsCompile(f string) (b []byte, err error) {
+func JsCompiler(f string) (b []byte, err error) {
 	out, err := exec.Command("uglifyjs", f).CombinedOutput()
 	if err == nil {
 		b = out

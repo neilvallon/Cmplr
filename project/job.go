@@ -1,7 +1,7 @@
 package project
 
 import (
-	"github.com/neilvallon/cmplr/compilers"
+	"github.com/neilvallon/cmplr/compiler"
 	"os"
 	"path"
 	"path/filepath"
@@ -32,8 +32,10 @@ func (j *Job) Run() {
 		return
 	}
 
+	c := compiler.New(j.InputFiles)
+
 	var out []byte
-	if out, err = compilers.Compile(j.InputFiles); err != nil {
+	if out, err = c.Compile(); err != nil {
 		return
 	}
 
