@@ -6,46 +6,53 @@ import (
 	"bytes"
 )
 
-type Compiler interface {
-	Compile(chan error)
-	GetData() []byte
+
+type Compiler func(string) ([]byte, error)
+
+type CompileOut struct {
+	Id    int
+	Data  []byte
+	Error error
 }
 
-type CompilerSet []Compiler
-func (cs CompilerSet) Compile() (err error) {
-	l := len(cs)
-	errchan := make(chan error, l)
+func Compile(fs []string) (b []byte, err error) {
+	l := len(fs)
 
-	for _, c := range cs {
-		go c.Compile(errchan)
+	retchan := make(chan *CompileOut, l)
+	for i, f := range fs {
+		var c Compiler
+		if c, err = GetCompiler(f); err != nil {
+			return
+		}
+
+		go func(f string, i int) {
+			out, err := c(f)
+			retchan <- &CompileOut{ Id: i, Data: out, Error: err, }
+		}(f, i)
 	}
 
+	bb := make([][]byte, l)
 	for i := 0; i < l; i++ {
-		if err = <-errchan; err != nil {
+		if ret := <- retchan; ret.Error == nil {
+			bb[ret.Id] = ret.Data
+		} else {
+			err = ret.Error
 			return
 		}
 	}
 
+	b = bytes.Join(bb, []byte("\n"))
 	return
-}
-
-func (cs CompilerSet) Output() []byte {
-	var bb [][]byte
-	for _, c := range cs {
-		bb = append(bb, c.GetData())
-	}
-
-	return bytes.Join(bb, []byte("\n"))
 }
 
 func GetCompiler(file string) (c Compiler, err error) {
 	switch ext := filepath.Ext(file); ext {
 		case ".js":
-			c = &JsFile{ Name: file }
+			c = JsCompile
 		case ".less":
-			c = &LessFile{ Name: file }
+			c = LessCompile
 		case ".jade":
-			c = &JadeFile{ Name: file }
+			c = JadeCompile
 		default:
 			err = fmt.Errorf("Unsuported file type '%s'", ext)
 	}

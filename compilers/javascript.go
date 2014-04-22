@@ -5,27 +5,14 @@ import (
 	"fmt"
 )
 
-type JsFile struct {
-	Name  string
-	Data  []byte
-}
 
-func (f *JsFile) Compile(ch chan error) {
-	var err error
-	defer func() {
-		ch <- err
-	}()
-
-	out, err := exec.Command("uglifyjs", f.Name).CombinedOutput()
+func JsCompile(f string) (b []byte, err error) {
+	out, err := exec.Command("uglifyjs", f).CombinedOutput()
 	if err == nil {
-		f.Data = out
+		b = out
 	} else {
 		err = fmt.Errorf("%s\n%s", err, out)
 	}
 
 	return
-}
-
-func (f *JsFile) GetData() []byte {
-	return f.Data
 }

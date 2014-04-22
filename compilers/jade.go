@@ -7,25 +7,16 @@ import (
 	"fmt"
 )
 
-type JadeFile struct {
-	Name  string
-	Data  []byte
-}
 
-func (f *JadeFile) Compile(ch chan error) {
-	var err error
-	defer func() {
-		ch <- err
-	}()
-
+func JadeCompile(f string) (b []byte, err error) {
 	// Get file directory
-	dir, err := filepath.Abs(f.Name)
+	dir, err := filepath.Abs(f)
 	if err != nil {
 		return
 	}
 
 	// Open jade file
-	file, err := ioutil.ReadFile(f.Name)
+	file, err := ioutil.ReadFile(f)
 	if err != nil {
 		return
 	}
@@ -46,14 +37,10 @@ func (f *JadeFile) Compile(ch chan error) {
 	// Read output
 	out, err := cmd.CombinedOutput()
 	if err == nil {
-		f.Data = out
+		b = out
 	} else {
 		err = fmt.Errorf("%s\n%s", err, out)
 	}
 
 	return
-}
-
-func (f *JadeFile) GetData() []byte {
-	return f.Data
 }
