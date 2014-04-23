@@ -16,10 +16,11 @@ func main() {
 	fmt.Printf("Project: %s\n", cfg.ProjectName)
 
 	serve := flag.Bool("s", false, "Start dev file server")
+	watch := flag.Bool("w", false, "Watch files for changes")
 	flag.Parse()
 
 	for _, j := range cfg.Jobs {
-		if *serve {
+		if *serve || *watch {
 			go j.Watch()
 		} else {
 			j.Run()
@@ -30,6 +31,7 @@ func main() {
 	if *serve {
 		fmt.Println("Starting file server on port 8080")
 		http.ListenAndServe(":8080", http.FileServer(http.Dir("./")))
+	} else if *watch {
+		<- make(chan bool) // Wait indefinitely
 	}
 }
-
