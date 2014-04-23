@@ -68,10 +68,12 @@ func (c *Compiler) monitor(w *fsnotify.Watcher, u chan bool) {
 		select {
 			case ev := <- w.Event:
 				f := CmplrFile(ev.Name)
-				log.Println(f, "- Recompiling")
 				if out, err := f.Compile(); err == nil {
-					c.cache[c.files[f]] = out
-					u <- true
+					if !bytes.Equal(c.cache[c.files[f]], out) {
+						log.Println(f, "- Recompiling")
+						c.cache[c.files[f]] = out
+						u <- true
+					}
 				} else {
 					log.Println(err)
 				}
