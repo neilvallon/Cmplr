@@ -1,9 +1,10 @@
 package compiler
 
 import (
-	"code.google.com/p/go.exp/fsnotify"
 	"bytes"
 	"log"
+
+	"code.google.com/p/go.exp/fsnotify"
 )
 
 type Compiler struct {
@@ -12,7 +13,7 @@ type Compiler struct {
 }
 
 func New(fs []string) *Compiler {
-	c := &Compiler {
+	c := &Compiler{
 		files: make(map[CmplrFile]int),
 		cache: make([][]byte, len(fs)),
 	}
@@ -50,12 +51,12 @@ func (c *Compiler) CompileAsync() (b []byte, err error) {
 	for f, id := range c.files {
 		go func(f CmplrFile, id int) {
 			b, err := f.Compile()
-			retchan <- &retObj { id: id, data: b, err: err }
+			retchan <- &retObj{id: id, data: b, err: err}
 		}(f, id)
 	}
 
 	for i := 0; i < l; i++ {
-		ret := <- retchan
+		ret := <-retchan
 		if ret.err != nil {
 			err = ret.err
 			return
@@ -96,12 +97,12 @@ func (c *Compiler) Watch() chan []byte {
 func (c *Compiler) monitor(w *fsnotify.Watcher, u chan bool) {
 	for {
 		select {
-			case ev := <- w.Event:
-				if c.handelFileMod(ev) {
-					u <- true
-				}
-			case err := <- w.Error:
-				log.Println("error:", err)
+		case ev := <-w.Event:
+			if c.handelFileMod(ev) {
+				u <- true
+			}
+		case err := <-w.Error:
+			log.Println("error:", err)
 		}
 	}
 }

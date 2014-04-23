@@ -1,10 +1,9 @@
 package compiler
 
 import (
-	"os/exec"
 	"fmt"
+	"os/exec"
 )
-
 
 func JsCompiler(f string) (b []byte, err error) {
 	out, err := exec.Command("uglifyjs", f).CombinedOutput()

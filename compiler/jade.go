@@ -1,12 +1,11 @@
 package compiler
 
 import (
-	"os/exec"
-	"io/ioutil"
-	"path/filepath"
 	"fmt"
+	"io/ioutil"
+	"os/exec"
+	"path/filepath"
 )
-
 
 func JadeCompiler(f string) (b []byte, err error) {
 	// Get file directory

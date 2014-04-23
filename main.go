@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/neilvallon/cmplr/project"
-	"fmt"
 	"flag"
+	"fmt"
+	"github.com/neilvallon/cmplr/project"
 	"net/http"
 )
 
@@ -32,6 +32,6 @@ func main() {
 		fmt.Println("Starting file server on port 8080")
 		http.ListenAndServe(":8080", http.FileServer(http.Dir("./")))
 	} else if *watch {
-		<- make(chan bool) // Wait indefinitely
+		<-make(chan bool) // Wait indefinitely
 	}
 }

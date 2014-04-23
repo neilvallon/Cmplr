@@ -1,18 +1,17 @@
 package project
 
 import (
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 )
 
 const (
 	CONFIG = "cmplr.conf"
 )
 
-
 type ConfigFile struct {
 	ProjectName string
-	Jobs []*Job
+	Jobs        []*Job
 }
 
 func ReadConfig() (cfg *ConfigFile, err error) {

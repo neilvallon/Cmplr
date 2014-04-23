@@ -1,15 +1,14 @@
 package project
 
 import (
+	"fmt"
 	"github.com/neilvallon/cmplr/compiler"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"fmt"
 	"strings"
-	"log"
 )
-
 
 type Job struct {
 	Type string
@@ -22,7 +21,7 @@ type Job struct {
 
 func (j *Job) Run() {
 	var err error
-	defer func () {
+	defer func() {
 		printHeader(filepath.Base(j.Outputfile))
 		if err != nil {
 			fmt.Println(err)
@@ -53,7 +52,7 @@ func (j *Job) Watch() {
 
 	c := compiler.New(j.InputFiles)
 
-	out, err := c.CompileAsync();
+	out, err := c.CompileAsync()
 	if err != nil {
 		panic(err) // invalid cache if initial compile fails
 	}
