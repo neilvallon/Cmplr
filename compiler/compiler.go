@@ -67,18 +67,28 @@ func (c *Compiler) monitor(w *fsnotify.Watcher, u chan bool) {
 	for {
 		select {
 			case ev := <- w.Event:
-				f := CmplrFile(ev.Name)
-				if out, err := f.Compile(); err == nil {
-					if !bytes.Equal(c.cache[c.files[f]], out) {
-						log.Println(f, "- Recompiling")
-						c.cache[c.files[f]] = out
-						u <- true
-					}
-				} else {
-					log.Println(err)
+				if c.handelFileMod(ev) {
+					u <- true
 				}
 			case err := <- w.Error:
 				log.Println("error:", err)
 		}
 	}
+}
+
+func (c *Compiler) handelFileMod(ev *fsnotify.FileEvent) (up bool) {
+	f := CmplrFile(ev.Name)
+
+	out, err := f.Compile()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if !bytes.Equal(c.cache[c.files[f]], out) {
+		log.Println(f, "- Recompiling")
+		c.cache[c.files[f]] = out
+		up = true
+	}
+	return
 }
