@@ -36,7 +36,7 @@ func (j *Job) Run() {
 	c := compiler.New(j.InputFiles)
 
 	var out []byte
-	if out, err = c.Compile(); err != nil {
+	if out, err = c.CompileAsync(); err != nil {
 		return
 	}
 
@@ -53,7 +53,7 @@ func (j *Job) Watch() {
 
 	c := compiler.New(j.InputFiles)
 
-	out, err := c.Compile();
+	out, err := c.CompileAsync();
 	if err != nil {
 		panic(err) // invalid cache if initial compile fails
 	}

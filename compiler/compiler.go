@@ -37,6 +37,36 @@ func (c *Compiler) Compile() (b []byte, err error) {
 	return
 }
 
+type retObj struct {
+	id   int
+	data []byte
+	err  error
+}
+
+func (c *Compiler) CompileAsync() (b []byte, err error) {
+	l := len(c.files)
+
+	retchan := make(chan *retObj, l)
+	for f, id := range c.files {
+		go func(f CmplrFile, id int) {
+			b, err := f.Compile()
+			retchan <- &retObj { id: id, data: b, err: err }
+		}(f, id)
+	}
+
+	for i := 0; i < l; i++ {
+		ret := <- retchan
+		if ret.err != nil {
+			err = ret.err
+			return
+		}
+		c.cache[ret.id] = ret.data
+	}
+
+	b = bytes.Join(c.cache, []byte{})
+	return
+}
+
 func (c *Compiler) Watch() chan []byte {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
