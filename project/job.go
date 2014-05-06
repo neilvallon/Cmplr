@@ -19,6 +19,8 @@ type Job struct {
 	Options map[string]string
 }
 
+// Compiles all files in current job asynchronously and saves to output file.
+// If any error occurs durring compilation the job file will not be saved.
 func (j *Job) Run() {
 	var err error
 	defer func() {
@@ -44,6 +46,12 @@ func (j *Job) Run() {
 	return
 }
 
+// Attempts an initial compile of all source files.
+// If an error occurs on the inital compile a panic will occur to prevent a
+// partial file from being saved.
+//
+// After the inital commit any changes that result in error will be logged and
+// program will wait for the next successfull compile to continue saving.
 func (j *Job) Watch() {
 	if err := os.MkdirAll(path.Dir(j.Outputfile), 0777); err != nil {
 		log.Println(err)
@@ -52,6 +60,8 @@ func (j *Job) Watch() {
 
 	c := compiler.New(j.InputFiles)
 
+	// TODO: Fix panic by ensuring compiler cache is filled with all successful
+	// data even if some files come back with errors.
 	out, err := c.CompileAsync()
 	if err != nil {
 		panic(err) // invalid cache if initial compile fails

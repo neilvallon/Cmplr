@@ -12,7 +12,10 @@ type Compiler struct {
 	cache [][]byte
 }
 
+// Returns new compiler from list of file paths.
 func New(fs []string) *Compiler {
+	// TODO: Error if file types do not match. For instance JS and coffeescript
+	// compiled together makes sense but JS and less would not.
 	c := &Compiler{
 		files: make(map[CmplrFile]int),
 		cache: make([][]byte, len(fs)),
@@ -25,6 +28,8 @@ func New(fs []string) *Compiler {
 	return c
 }
 
+// Returns compiled source files appended together in the order given.
+// Compilation will stop on first file error.
 func (c *Compiler) Compile() (b []byte, err error) {
 	for f, i := range c.files {
 		b, err = f.Compile()
@@ -44,6 +49,10 @@ type retObj struct {
 	err  error
 }
 
+// Returns compiled source files appended together in the order given.
+//
+// Function will return on first error but compilation of all files will
+// continue with their outputs discarded.
 func (c *Compiler) CompileAsync() (b []byte, err error) {
 	l := len(c.files)
 
@@ -68,6 +77,9 @@ func (c *Compiler) CompileAsync() (b []byte, err error) {
 	return
 }
 
+// Runs compiler and watches file system for changes to any of the source files.
+// When a modify event occurs that file is recompiled and combined with the
+// cache of other files to be sent over a channel for saving.
 func (c *Compiler) Watch() chan []byte {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {

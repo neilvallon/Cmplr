@@ -14,6 +14,19 @@ type ConfigFile struct {
 	Jobs        []*Job
 }
 
+// Reads 'cmplr.conf' file with the following format:
+// Example:
+//   {
+//     "Jobs": [
+//       {
+//         "Outputfile": "dist/css/main.css",
+//         "InputFiles": [
+//           "src/css/layout.less",
+//           "src/css/menu.less"
+//         ]
+//       }
+//     ]
+//   }
 func ReadConfig() (cfg *ConfigFile, err error) {
 	file, err := ioutil.ReadFile(CONFIG)
 	if err != nil {
