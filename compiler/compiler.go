@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"log"
 
-	"code.google.com/p/go.exp/fsnotify"
+	"gopkg.in/fsnotify.v0"
 )
 
 type Compiler struct {
